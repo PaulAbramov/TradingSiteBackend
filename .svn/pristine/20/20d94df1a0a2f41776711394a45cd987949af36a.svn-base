@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="e9c66b5597f04f80a18d27adbdf1040f" Name="Diagram1">
+        <EntityTypeShape EntityType="TradingSiteModel.Bots" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Condition" Width="1.5" PointX="5.875" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Rarity" Width="1.5" PointX="5.875" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.TradeOffers" Width="1.5" PointX="10.375" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.TradeOfferStatus" Width="1.5" PointX="12.875" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Type" Width="1.5" PointX="5.875" PointY="7.5" IsExpanded="true" />
+        <AssociationConnector Association="TradingSiteModel.TradeOffers_fk2" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="TradingSiteModel.sysdiagrams" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="TradingSiteModel.Inventory" Width="1.5" PointX="3.5" PointY="2" />
+        <AssociationConnector Association="TradingSiteModel.Inventory_fk0" />
+        <AssociationConnector Association="TradingSiteModel.Inventory_fk2" />
+        <AssociationConnector Association="TradingSiteModel.Inventory_fk1" />
+        <AssociationConnector Association="TradingSiteModel.Inventory_fk3" />
+        <EntityTypeShape EntityType="TradingSiteModel.TemporaryUser" Width="1.5" PointX="5.875" PointY="1.625" />
+        <EntityTypeShape EntityType="TradingSiteModel.CustomerUser" Width="1.5" PointX="8.125" PointY="1.5" />
+        <AssociationConnector Association="TradingSiteModel.TradeOffers_fk0" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

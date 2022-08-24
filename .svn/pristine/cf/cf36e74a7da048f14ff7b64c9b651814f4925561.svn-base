@@ -1,0 +1,46 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Web.Http;
+using TradingSite.Models;
+
+namespace TradingSite.Controllers
+{
+    public class AuthController : ApiController
+    {
+        public HttpResponseMessage Post()
+        {
+            Statistics newStatistics = new Statistics
+            {
+                ActiveUsers = 10,
+                NewUsersToday = 100,
+                SuccessfulTrades = 123123123,
+                UsersTotal = 1123123,
+                InventoryValue = 123012.23
+            };
+
+            var response = new HttpResponseMessage
+            {
+                Content = new ObjectContent(typeof(Statistics), newStatistics, new JsonMediaTypeFormatter()),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+
+        public HttpResponseMessage Get(HttpRequestMessage test)
+        {
+            var queryParams = Uri.UnescapeDataString(test.RequestUri.Query).Split('&');
+
+            //TODO benutze Return to als uri für die location
+
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Location = new Uri("http://localhost:4200/");
+
+            return response;
+        }
+    }
+}

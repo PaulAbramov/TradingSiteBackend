@@ -1,0 +1,10 @@
+﻿namespace TradingSite.Models.Steam
+{
+    public class CustomerUserJson
+    {
+        public long SteamID { get; set; }
+        public string TradeURL { get; set; }
+        public string UserName { get; set; }
+        public string Avatar { get; set; }
+    }
+}

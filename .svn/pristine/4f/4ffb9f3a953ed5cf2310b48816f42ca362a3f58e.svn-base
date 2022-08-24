@@ -1,0 +1,61 @@
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+
+namespace TradingSite.Controllers
+{
+    public class AuthController : ApiController
+    {
+        private readonly WebHelper m_webHelper = new WebHelper();
+
+        /// <summary>
+        /// Steam openID page
+        /// </summary>
+        /// <returns></returns>
+        public HttpResponseMessage Get()
+        {
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Location = new Uri("https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=http://localhost:43410/api/auth/AuthVerify&openid.realm=http://localhost:43410/");
+
+            return response;
+        }
+
+        /// <summary>
+        /// get the users profile data and return to the tradingsite
+        /// </summary>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<HttpResponseMessage> AuthVerify(HttpRequestMessage test)
+        {
+            var queryParams = Uri.UnescapeDataString(test.RequestUri.Query).Split('&');
+            string steamid = "";
+
+            //TODO benutze Return to als uri für die location
+
+            //"openid.identity = https://steamcommunity.com/openid/id/76561198000479819"
+
+            foreach(string param in queryParams)
+            {
+                if(param.StartsWith("openid.identity"))
+                {
+                    steamid = param.Split('/').Last();
+                    break;
+                }
+            }
+
+            string url = $"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=51687C8CCA7046C73528DCD5B88730C1&steamids={steamid}";
+
+            var stringresponse = await m_webHelper.GetStringFromRequest(url).ConfigureAwait(false);
+
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Content = new StringContent(stringresponse);
+            response.Headers.Location = new Uri("http://localhost:4200/");
+
+            return response;
+        }
+    }
+}

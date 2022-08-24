@@ -1,0 +1,186 @@
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using Newtonsoft.Json;
+using TradingSite.Helper;
+using TradingSite.Models;
+using TradingSite.Models.Steam;
+
+namespace TradingSite.Controllers
+{
+    public class AuthController : ApiController
+    {
+        private readonly WebHelper m_webHelper = new WebHelper();
+
+        /// <summary>
+        /// User receives a token and a temporaryID when he joins the site
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/auth/requesttoken")]
+        public HttpResponseMessage RequestToken()
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+
+            using (TradingSiteEntities db = new TradingSiteEntities())
+            {
+                DateTime expirationDate = DateTime.UtcNow.AddMinutes(1);
+                int userID = db.TemporaryUser.Count();
+
+                response.Content = new StringContent(JWTAuth.GenerateToken(userID, expirationDate));
+                response.StatusCode = HttpStatusCode.Accepted;
+
+                db.TemporaryUser.Add(new TemporaryUser { UserID = userID, ExpirationTime = expirationDate});
+                db.SaveChanges();
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// User sends his token and gets his data to show
+        /// If the token is not valid then request a new one
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("api/auth/requestdata")]
+        public HttpResponseMessage RequestData([FromBody] string token)
+        {
+            string steamid = "";
+            long? userID = JWTAuth.ValidateToken(token);
+            CustomerUserJson userJson = null;
+
+            if (userID == null)
+            {
+                return RequestToken();
+            }
+
+            using (TradingSiteEntities db = new TradingSiteEntities())
+            {
+                foreach (var user in db.TemporaryUser)
+                {
+                    if (user.UserID == userID)
+                    {
+                        steamid = user.SteamID.ToString();
+                        break;
+                    }
+                }
+
+                foreach(var user in db.CustomerUser)
+                {
+                    if(user.SteamID.ToString() == steamid)
+                    {
+                        userJson = new CustomerUserJson
+                        {
+                            SteamID = user.SteamID,
+                            Avatar = user.Avatar,
+                            TradeURL = user.TradeURL,
+                            UserName = user.UserName
+                        };
+                    }
+                }
+            }
+
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(userJson)),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+
+        /// <summary>
+        /// Steam openID page
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/auth/steamlogin")]
+        public HttpResponseMessage Login(HttpRequestMessage body)
+        {
+            var queryParams = Uri.UnescapeDataString(body.RequestUri.Query).Split('=');
+            int? userID = JWTAuth.ValidateToken(queryParams.Last());
+
+            //TODO Buggy, need to redirect and return this
+            if (userID == null)
+            {
+                return RequestToken();
+            }
+
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Location = new Uri($"https://steamcommunity.com/openid/login?openid.mode=checkid_setup&openid.ns=http://specs.openid.net/auth/2.0&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select&openid.return_to=http://localhost:43410/api/auth/AuthVerify/{userID}&openid.realm=http://localhost:43410/");
+
+            return response;
+        }
+
+        /// <summary>
+        /// get the users profile data, save it to the db and return to the tradingsite
+        /// </summary>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/auth/AuthVerify/{id}")]
+        public async Task<HttpResponseMessage> AuthVerify(int id, HttpRequestMessage test)
+        {
+            string steamid = "";
+
+            var queryParams = Uri.UnescapeDataString(test.RequestUri.Query).Split('&');
+
+            foreach(string param in queryParams)
+            {
+                if(param.StartsWith("openid.identity"))
+                {
+                    steamid = param.Split('/').Last();
+                    break;
+                }
+            }
+
+            string url = $"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=51687C8CCA7046C73528DCD5B88730C1&steamids={steamid}";
+            var steamid64 = Convert.ToInt64(steamid);
+
+            var stringresponse = await m_webHelper.GetStringFromRequest(url).ConfigureAwait(false);
+            APIResponse<PlayerSummariesJson> playerSummariesResponse = JsonConvert.DeserializeObject<APIResponse<PlayerSummariesJson>>(stringresponse);
+
+            using (TradingSiteEntities db = new TradingSiteEntities())
+            {
+                var temporaryUser = db.TemporaryUser.FirstOrDefault(user => user.UserID == id);
+                
+                if(temporaryUser != null)
+                {
+                    temporaryUser.SteamID = steamid64;
+                }
+
+                if(db.CustomerUser.FirstOrDefault(x => x.SteamID == steamid64) == null)
+                {
+                    db.CustomerUser.Add(new CustomerUser
+                    {
+                        SteamID = steamid64,
+                        Avatar = playerSummariesResponse.Response.Players.First().Avatar,
+                        Banned = false,
+                        UserName = playerSummariesResponse.Response.Players.First().PersonaName
+                    });
+                }
+
+                db.SaveChanges();
+            }
+
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Location = new Uri("http://localhost:4200/");
+
+            return response;
+        }
+    }
+
+    /// <summary>
+    /// If we receive a response, there is a "response:" tag, which will be here excluded, so we do not get a nullreference
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class APIResponse<T>
+    {
+        public T Response { get; set; }
+    }
+}

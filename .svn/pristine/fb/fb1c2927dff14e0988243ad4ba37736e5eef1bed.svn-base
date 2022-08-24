@@ -1,0 +1,16 @@
+﻿namespace TradingSite.Models
+{
+    public class Item
+    {
+        public int AppID { get; set; }
+        public int ContextID { get; set; }
+        public string AssetID { get; set; }
+        public string ClassID { get; set; }
+        public string InstanceID { get; set; }
+        public string IconUrl { get; set; }
+        public string Name { get; set; }
+        public string MarketName { get; set; }
+        public string MarketHashName { get; set; }
+        public string Type { get; set; }
+    }
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="c9822bcd69a944afb6333109cc3f1d1d" Name="Diagram1">
+        <EntityTypeShape EntityType="TradingSiteModel.BlacklistedItem" Width="1.5" PointX="2.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Bot" Width="1.5" PointX="0.75" PointY="2.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Condition" Width="1.5" PointX="0.75" PointY="5.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Game" Width="1.5" PointX="7.75" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Item" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.ItemPrice" Width="1.5" PointX="10" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Rarity" Width="1.5" PointX="0.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.sysdiagrams" Width="1.5" PointX="7.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.TemporaryUser" Width="1.5" PointX="4.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.TradeOffer" Width="1.5" PointX="8" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.TradeOfferStatus" Width="1.5" PointX="5.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TradingSiteModel.Type" Width="1.5" PointX="0.75" PointY="10.125" IsExpanded="true" />
+        <AssociationConnector Association="TradingSiteModel.Item_fk0" ManuallyRouted="false" />
+        <AssociationConnector Association="TradingSiteModel.Item_fk2" ManuallyRouted="false" />
+        <AssociationConnector Association="TradingSiteModel.ItemPrice_fk0" ManuallyRouted="false" />
+        <AssociationConnector Association="TradingSiteModel.Item_fk1" ManuallyRouted="false" />
+        <AssociationConnector Association="TradingSiteModel.Item_fk3" ManuallyRouted="false" />
+        <AssociationConnector Association="TradingSiteModel.TradeOffer_fk1" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="TradingSiteModel.CustomerUser" Width="1.5" PointX="5.75" PointY="1.25" />
+        <AssociationConnector Association="TradingSiteModel.TradeOffer_fk0" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

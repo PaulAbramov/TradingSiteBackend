@@ -1,0 +1,66 @@
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
+using TradingSite.Models.Auth;
+
+namespace TradingSite.Helper
+{
+    public class JWTAuth
+    {
+        private static string secret = @"401b09eab3c013d4ca54922bb802bec8fd5318192b0a75f201d8b3727429090fb337591abd3e44453b954555b7a0812e1081c39b740293f765eae731f5a65ed1";
+
+        /// <summary>
+        /// Generate a token with the current time and the a temporaryUserID
+        /// </summary>
+        /// <param name="_temporaryUserID"></param>
+        /// <returns></returns>
+        public static string GenerateToken(int _temporaryUserID, DateTime _expirationDate)
+        {
+            var payload = new JwtPayload
+            {
+                {"token", new Token{ExpirationDate = _expirationDate, TemporaryUserID = _temporaryUserID}}
+            };
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+            var header = new JwtHeader(credentials);
+            var secToken = new JwtSecurityToken(header, payload);
+            var handler = new JwtSecurityTokenHandler();
+            var tokenstring = handler.WriteToken(secToken);
+
+            return tokenstring;
+        }
+
+        /// <summary>
+        /// Validate the token, check the remaining time and if it is valid return the users ID
+        /// </summary>
+        /// <param name="_accessToken"></param>
+        /// <returns></returns>
+        public static int? ValidateToken(string _accessToken)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var token = handler.ReadJwtToken(_accessToken);
+                JToken jtoken = (JToken) token.Payload.First().Value;
+                var tokenObject = jtoken.ToObject<Token>();
+
+                TimeSpan ts = DateTime.UtcNow - tokenObject.ExpirationDate;
+
+                if (ts.Minutes < 1)
+                {
+                    return tokenObject.TemporaryUserID;
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+    }
+}

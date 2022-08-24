@@ -1,0 +1,98 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using TradingSite.Models;
+
+namespace TradingSite.Controllers
+{
+    public class TestController : ApiController
+    {
+        private readonly WebHelper m_webHelper = new WebHelper();
+
+        public HttpResponseMessage Get()
+        {
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent("GET: test"),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+
+        [HttpPost]
+        public async Task<HttpResponseMessage> GetInventory([FromBody] string steamID)
+        {
+            List<Item> items = new List<Item>();
+
+            string url = $"https://steamcommunity.com/inventory/{steamID}/730/2?l=english&trading=1&count=5000";
+            string webResponse = await m_webHelper.GetStringFromRequest(url).ConfigureAwait(false);
+
+            InventoryResponse inventoryResponse = JsonConvert.DeserializeObject<InventoryResponse>(webResponse);
+
+            while (inventoryResponse.More == 1)
+            {
+                url += $"&start_assetid={inventoryResponse.LastAssetID}";
+
+                webResponse = await m_webHelper.GetStringFromRequest(url).ConfigureAwait(false);
+
+                InventoryResponse inventoryResponseMore = JsonConvert.DeserializeObject<InventoryResponse>(webResponse);
+
+                inventoryResponse.More = inventoryResponseMore.More;
+                inventoryResponse.LastAssetID = inventoryResponseMore.LastAssetID;
+
+                inventoryResponse.Assets.AddRange(inventoryResponseMore.Assets);
+                inventoryResponse.ItemsDescriptions.AddRange(inventoryResponseMore.ItemsDescriptions);
+            }
+
+            foreach (var item in inventoryResponse.Assets)
+            {
+                var itemToHandle = inventoryResponse.ItemsDescriptions.First(_itemDescription => _itemDescription.ClassID == item.ClassID && _itemDescription.InstanceID == item.InstanceID);
+
+                if(itemToHandle.Tradable == 0)
+                {
+                    continue;
+                }
+
+                items.Add(new Item
+                {
+                    AppID = itemToHandle.AppID,
+                    ContextID = Convert.ToInt32(item.ContextID),
+                    AssetID = item.AssetID,
+                    ClassID = item.ClassID,
+                    InstanceID = item.InstanceID,
+                    IconUrl = itemToHandle.IconURL,
+                    MarketHashName = itemToHandle.MarketHashName,
+                    MarketName = itemToHandle.MarketName,
+                    Name = itemToHandle.Name,
+                    Type = itemToHandle.Type
+                });
+            }
+
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent($"GET: {string.Join(",", new JavaScriptSerializer().Serialize(items))}"),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+
+        public HttpResponseMessage Post([FromBody] string data)
+        {
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent($"POST: {data}"),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+    }
+}

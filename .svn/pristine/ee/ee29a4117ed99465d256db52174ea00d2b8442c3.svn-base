@@ -1,0 +1,594 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TradingSiteModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Bots">
+          <Key>
+            <PropertyRef Name="SteamID" />
+          </Key>
+          <Property Name="SteamID" Type="bigint" Nullable="false" />
+          <Property Name="TradeToken" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="BotName" Type="nvarchar" MaxLength="32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Condition">
+          <Key>
+            <PropertyRef Name="ConditionName" />
+          </Key>
+          <Property Name="ConditionName" Type="varchar" MaxLength="14" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CustomerUser">
+          <Key>
+            <PropertyRef Name="SteamID" />
+          </Key>
+          <Property Name="UserID" Type="bigint" Nullable="false" />
+          <Property Name="SteamID" Type="bigint" Nullable="false" />
+          <Property Name="TradeURL" Type="varchar" MaxLength="90" />
+          <Property Name="UserName" Type="nvarchar" MaxLength="32" />
+          <Property Name="Banned" Type="bit" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'TradingSite.dbo.Inventory' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Inventory">
+          <Key>
+            <PropertyRef Name="BotSteamID" />
+            <PropertyRef Name="GameID" />
+            <PropertyRef Name="ContextID" />
+            <PropertyRef Name="AssetID" />
+            <PropertyRef Name="ClassID" />
+            <PropertyRef Name="MarketHashName" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="IconURL" />
+            <PropertyRef Name="Amount" />
+          </Key>
+          <Property Name="BotSteamID" Type="bigint" Nullable="false" />
+          <Property Name="GameID" Type="int" Nullable="false" />
+          <Property Name="ContextID" Type="tinyint" Nullable="false" />
+          <Property Name="AssetID" Type="bigint" Nullable="false" />
+          <Property Name="ClassID" Type="bigint" Nullable="false" />
+          <Property Name="MarketHashName" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="IconURL" Type="varchar" MaxLength="300" Nullable="false" />
+          <Property Name="Amount" Type="smallint" Nullable="false" />
+          <Property Name="Type" Type="varchar" MaxLength="11" />
+          <Property Name="Condition" Type="varchar" MaxLength="14" />
+          <Property Name="StatTrak" Type="bit" />
+          <Property Name="Rarity" Type="varchar" MaxLength="17" />
+          <Property Name="Reserved" Type="bit" />
+        </EntityType>
+        <EntityType Name="Rarity">
+          <Key>
+            <PropertyRef Name="RarityName" />
+          </Key>
+          <Property Name="RarityName" Type="varchar" MaxLength="17" Nullable="false" />
+          <Property Name="ColorCode" Type="char" MaxLength="6" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TemporaryUser">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="bigint" Nullable="false" />
+          <Property Name="SteamID" Type="bigint" />
+        </EntityType>
+        <EntityType Name="TradeOffers">
+          <Key>
+            <PropertyRef Name="TradeID" />
+          </Key>
+          <Property Name="TradeID" Type="bigint" Nullable="false" />
+          <Property Name="SteamID" Type="bigint" Nullable="false" />
+          <Property Name="BotsAccounts" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="TheirItems" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="OurItems" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="TradeOffersStatus" Type="varchar" MaxLength="8" Nullable="false" />
+          <Property Name="TimeCreated" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="TimeDone" Type="datetime2" Precision="7" />
+          <Property Name="Remark" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="TradeOfferStatus">
+          <Key>
+            <PropertyRef Name="TradeOffersStatus" />
+          </Key>
+          <Property Name="TradeOffersStatus" Type="varchar" MaxLength="8" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Type">
+          <Key>
+            <PropertyRef Name="TypeName" />
+          </Key>
+          <Property Name="TypeName" Type="varchar" MaxLength="11" Nullable="false" />
+        </EntityType>
+        <Association Name="CustomerUser_fk0">
+          <End Role="TemporaryUser" Type="Self.TemporaryUser" Multiplicity="1" />
+          <End Role="CustomerUser" Type="Self.CustomerUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TemporaryUser">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="CustomerUser">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk0">
+          <End Role="Bots" Type="Self.Bots" Multiplicity="1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bots">
+              <PropertyRef Name="SteamID" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="BotSteamID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk1">
+          <End Role="Type" Type="Self.Type" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type">
+              <PropertyRef Name="TypeName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk2">
+          <End Role="Condition" Type="Self.Condition" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Condition">
+              <PropertyRef Name="ConditionName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Condition" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk3">
+          <End Role="Rarity" Type="Self.Rarity" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rarity">
+              <PropertyRef Name="RarityName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Rarity" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TradeOffers_fk0">
+          <End Role="CustomerUser" Type="Self.CustomerUser" Multiplicity="1" />
+          <End Role="TradeOffers" Type="Self.TradeOffers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CustomerUser">
+              <PropertyRef Name="SteamID" />
+            </Principal>
+            <Dependent Role="TradeOffers">
+              <PropertyRef Name="SteamID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TradeOffers_fk2">
+          <End Role="TradeOfferStatus" Type="Self.TradeOfferStatus" Multiplicity="1" />
+          <End Role="TradeOffers" Type="Self.TradeOffers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TradeOfferStatus">
+              <PropertyRef Name="TradeOffersStatus" />
+            </Principal>
+            <Dependent Role="TradeOffers">
+              <PropertyRef Name="TradeOffersStatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TradingSiteModelStoreContainer">
+          <EntitySet Name="Bots" EntityType="Self.Bots" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Condition" EntityType="Self.Condition" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CustomerUser" EntityType="Self.CustomerUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Rarity" EntityType="Self.Rarity" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TemporaryUser" EntityType="Self.TemporaryUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TradeOffers" EntityType="Self.TradeOffers" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TradeOfferStatus" EntityType="Self.TradeOfferStatus" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Type" EntityType="Self.Type" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inventory" EntityType="Self.Inventory" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Inventory].[BotSteamID] AS [BotSteamID], 
+    [Inventory].[GameID] AS [GameID], 
+    [Inventory].[ContextID] AS [ContextID], 
+    [Inventory].[AssetID] AS [AssetID], 
+    [Inventory].[ClassID] AS [ClassID], 
+    [Inventory].[MarketHashName] AS [MarketHashName], 
+    [Inventory].[Name] AS [Name], 
+    [Inventory].[IconURL] AS [IconURL], 
+    [Inventory].[Amount] AS [Amount], 
+    [Inventory].[Type] AS [Type], 
+    [Inventory].[Condition] AS [Condition], 
+    [Inventory].[StatTrak] AS [StatTrak], 
+    [Inventory].[Rarity] AS [Rarity], 
+    [Inventory].[Reserved] AS [Reserved]
+    FROM [dbo].[Inventory] AS [Inventory]</DefiningQuery>
+          </EntitySet>
+          <AssociationSet Name="CustomerUser_fk0" Association="Self.CustomerUser_fk0">
+            <End Role="TemporaryUser" EntitySet="TemporaryUser" />
+            <End Role="CustomerUser" EntitySet="CustomerUser" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk0" Association="Self.Inventory_fk0">
+            <End Role="Bots" EntitySet="Bots" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk1" Association="Self.Inventory_fk1">
+            <End Role="Type" EntitySet="Type" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk2" Association="Self.Inventory_fk2">
+            <End Role="Condition" EntitySet="Condition" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk3" Association="Self.Inventory_fk3">
+            <End Role="Rarity" EntitySet="Rarity" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="TradeOffers_fk0" Association="Self.TradeOffers_fk0">
+            <End Role="CustomerUser" EntitySet="CustomerUser" />
+            <End Role="TradeOffers" EntitySet="TradeOffers" />
+          </AssociationSet>
+          <AssociationSet Name="TradeOffers_fk2" Association="Self.TradeOffers_fk2">
+            <End Role="TradeOfferStatus" EntitySet="TradeOfferStatus" />
+            <End Role="TradeOffers" EntitySet="TradeOffers" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TradingSiteModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Bots">
+          <Key>
+            <PropertyRef Name="SteamID" />
+          </Key>
+          <Property Name="SteamID" Type="Int64" Nullable="false" />
+          <Property Name="TradeToken" Type="String" MaxLength="12" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="BotName" Type="String" MaxLength="32" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Inventory" Relationship="Self.Inventory_fk0" FromRole="Bots" ToRole="Inventory" />
+        </EntityType>
+        <EntityType Name="Condition">
+          <Key>
+            <PropertyRef Name="ConditionName" />
+          </Key>
+          <Property Name="ConditionName" Type="String" MaxLength="14" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Inventory" Relationship="Self.Inventory_fk2" FromRole="Condition" ToRole="Inventory" />
+        </EntityType>
+        <EntityType Name="CustomerUser">
+          <Key>
+            <PropertyRef Name="SteamID" />
+          </Key>
+          <Property Name="SteamID" Type="Int64" Nullable="false" />
+          <Property Name="TradeURL" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
+          <Property Name="UserName" Type="String" MaxLength="32" FixedLength="false" Unicode="true" />
+          <Property Name="Banned" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="TradeOffers" Relationship="Self.TradeOffers_fk0" FromRole="CustomerUser" ToRole="TradeOffers" />
+          <Property Name="UserID" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="TemporaryUser" Relationship="TradingSiteModel.CustomerUser_fk0" FromRole="CustomerUser" ToRole="TemporaryUser" />
+        </EntityType>
+        <EntityType Name="Rarity">
+          <Key>
+            <PropertyRef Name="RarityName" />
+          </Key>
+          <Property Name="RarityName" Type="String" MaxLength="17" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ColorCode" Type="String" MaxLength="6" FixedLength="true" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Inventory" Relationship="Self.Inventory_fk3" FromRole="Rarity" ToRole="Inventory" />
+        </EntityType>
+        <EntityType Name="TradeOffers">
+          <Key>
+            <PropertyRef Name="TradeID" />
+          </Key>
+          <Property Name="TradeID" Type="Int64" Nullable="false" />
+          <Property Name="SteamID" Type="Int64" Nullable="false" />
+          <Property Name="BotsAccounts" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TheirItems" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="OurItems" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TradeOffersStatus" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="TimeCreated" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="TimeDone" Type="DateTime" Precision="7" />
+          <Property Name="Remark" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="CustomerUser" Relationship="Self.TradeOffers_fk0" FromRole="TradeOffers" ToRole="CustomerUser" />
+          <NavigationProperty Name="TradeOfferStatus" Relationship="Self.TradeOffers_fk2" FromRole="TradeOffers" ToRole="TradeOfferStatus" />
+        </EntityType>
+        <EntityType Name="TradeOfferStatus">
+          <Key>
+            <PropertyRef Name="TradeOffersStatus" />
+          </Key>
+          <Property Name="TradeOffersStatus" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="TradeOffers" Relationship="Self.TradeOffers_fk2" FromRole="TradeOfferStatus" ToRole="TradeOffers" />
+        </EntityType>
+        <EntityType Name="Type">
+          <Key>
+            <PropertyRef Name="TypeName" />
+          </Key>
+          <Property Name="TypeName" Type="String" MaxLength="11" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Inventory" Relationship="Self.Inventory_fk1" FromRole="Type" ToRole="Inventory" />
+        </EntityType>
+        <EntityType Name="Inventory">
+          <Key>
+            <PropertyRef Name="BotSteamID" />
+            <PropertyRef Name="GameID" />
+            <PropertyRef Name="ContextID" />
+            <PropertyRef Name="AssetID" />
+            <PropertyRef Name="ClassID" />
+            <PropertyRef Name="MarketHashName" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="IconURL" />
+            <PropertyRef Name="Amount" />
+          </Key>
+          <Property Name="BotSteamID" Type="Int64" Nullable="false" />
+          <Property Name="GameID" Type="Int32" Nullable="false" />
+          <Property Name="ContextID" Type="Byte" Nullable="false" />
+          <Property Name="AssetID" Type="Int64" Nullable="false" />
+          <Property Name="ClassID" Type="Int64" Nullable="false" />
+          <Property Name="MarketHashName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="IconURL" Type="String" MaxLength="300" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Amount" Type="Int16" Nullable="false" />
+          <Property Name="Type" Type="String" MaxLength="11" FixedLength="false" Unicode="false" />
+          <Property Name="Condition" Type="String" MaxLength="14" FixedLength="false" Unicode="false" />
+          <Property Name="StatTrak" Type="Boolean" />
+          <Property Name="Rarity" Type="String" MaxLength="17" FixedLength="false" Unicode="false" />
+          <Property Name="Reserved" Type="Boolean" />
+          <NavigationProperty Name="Bots" Relationship="Self.Inventory_fk0" FromRole="Inventory" ToRole="Bots" />
+          <NavigationProperty Name="Condition1" Relationship="Self.Inventory_fk2" FromRole="Inventory" ToRole="Condition" />
+          <NavigationProperty Name="Rarity1" Relationship="Self.Inventory_fk3" FromRole="Inventory" ToRole="Rarity" />
+          <NavigationProperty Name="Type1" Relationship="Self.Inventory_fk1" FromRole="Inventory" ToRole="Type" />
+        </EntityType>
+        <Association Name="Inventory_fk0">
+          <End Role="Bots" Type="Self.Bots" Multiplicity="1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Bots">
+              <PropertyRef Name="SteamID" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="BotSteamID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk2">
+          <End Role="Condition" Type="Self.Condition" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Condition">
+              <PropertyRef Name="ConditionName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Condition" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TradeOffers_fk0">
+          <End Role="CustomerUser" Type="Self.CustomerUser" Multiplicity="1" />
+          <End Role="TradeOffers" Type="Self.TradeOffers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CustomerUser">
+              <PropertyRef Name="SteamID" />
+            </Principal>
+            <Dependent Role="TradeOffers">
+              <PropertyRef Name="SteamID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk3">
+          <End Role="Rarity" Type="Self.Rarity" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Rarity">
+              <PropertyRef Name="RarityName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Rarity" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TradeOffers_fk2">
+          <End Role="TradeOfferStatus" Type="Self.TradeOfferStatus" Multiplicity="1" />
+          <End Role="TradeOffers" Type="Self.TradeOffers" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TradeOfferStatus">
+              <PropertyRef Name="TradeOffersStatus" />
+            </Principal>
+            <Dependent Role="TradeOffers">
+              <PropertyRef Name="TradeOffersStatus" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="Inventory_fk1">
+          <End Role="Type" Type="Self.Type" Multiplicity="0..1" />
+          <End Role="Inventory" Type="Self.Inventory" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Type">
+              <PropertyRef Name="TypeName" />
+            </Principal>
+            <Dependent Role="Inventory">
+              <PropertyRef Name="Type" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TradingSiteEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Bots" EntityType="Self.Bots" />
+          <EntitySet Name="Condition" EntityType="Self.Condition" />
+          <EntitySet Name="CustomerUser" EntityType="Self.CustomerUser" />
+          <EntitySet Name="Rarity" EntityType="Self.Rarity" />
+          <EntitySet Name="TradeOffers" EntityType="Self.TradeOffers" />
+          <EntitySet Name="TradeOfferStatus" EntityType="Self.TradeOfferStatus" />
+          <EntitySet Name="Type" EntityType="Self.Type" />
+          <EntitySet Name="Inventory" EntityType="Self.Inventory" />
+          <AssociationSet Name="Inventory_fk0" Association="Self.Inventory_fk0">
+            <End Role="Bots" EntitySet="Bots" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk2" Association="Self.Inventory_fk2">
+            <End Role="Condition" EntitySet="Condition" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="TradeOffers_fk0" Association="Self.TradeOffers_fk0">
+            <End Role="CustomerUser" EntitySet="CustomerUser" />
+            <End Role="TradeOffers" EntitySet="TradeOffers" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk3" Association="Self.Inventory_fk3">
+            <End Role="Rarity" EntitySet="Rarity" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <AssociationSet Name="TradeOffers_fk2" Association="Self.TradeOffers_fk2">
+            <End Role="TradeOfferStatus" EntitySet="TradeOfferStatus" />
+            <End Role="TradeOffers" EntitySet="TradeOffers" />
+          </AssociationSet>
+          <AssociationSet Name="Inventory_fk1" Association="Self.Inventory_fk1">
+            <End Role="Type" EntitySet="Type" />
+            <End Role="Inventory" EntitySet="Inventory" />
+          </AssociationSet>
+          <EntitySet Name="TemporaryUser" EntityType="TradingSiteModel.TemporaryUser" />
+          <AssociationSet Name="CustomerUser_fk0" Association="TradingSiteModel.CustomerUser_fk0">
+            <End Role="TemporaryUser" EntitySet="TemporaryUser" />
+            <End Role="CustomerUser" EntitySet="CustomerUser" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="TemporaryUser">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="Int64" Nullable="false" />
+          <Property Name="SteamID" Type="Int64" />
+          <NavigationProperty Name="CustomerUser" Relationship="TradingSiteModel.CustomerUser_fk0" FromRole="TemporaryUser" ToRole="CustomerUser" />
+        </EntityType>
+        <Association Name="CustomerUser_fk0">
+          <End Type="TradingSiteModel.TemporaryUser" Role="TemporaryUser" Multiplicity="1" />
+          <End Type="TradingSiteModel.CustomerUser" Role="CustomerUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TemporaryUser">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="CustomerUser">
+              <PropertyRef Name="UserID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TradingSiteModelStoreContainer" CdmEntityContainer="TradingSiteEntities">
+          <EntitySetMapping Name="Bots">
+            <EntityTypeMapping TypeName="TradingSiteModel.Bots">
+              <MappingFragment StoreEntitySet="Bots">
+                <ScalarProperty Name="SteamID" ColumnName="SteamID" />
+                <ScalarProperty Name="TradeToken" ColumnName="TradeToken" />
+                <ScalarProperty Name="BotName" ColumnName="BotName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Condition">
+            <EntityTypeMapping TypeName="TradingSiteModel.Condition">
+              <MappingFragment StoreEntitySet="Condition">
+                <ScalarProperty Name="ConditionName" ColumnName="ConditionName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CustomerUser">
+            <EntityTypeMapping TypeName="TradingSiteModel.CustomerUser">
+              <MappingFragment StoreEntitySet="CustomerUser">
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="SteamID" ColumnName="SteamID" />
+                <ScalarProperty Name="TradeURL" ColumnName="TradeURL" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="Banned" ColumnName="Banned" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rarity">
+            <EntityTypeMapping TypeName="TradingSiteModel.Rarity">
+              <MappingFragment StoreEntitySet="Rarity">
+                <ScalarProperty Name="RarityName" ColumnName="RarityName" />
+                <ScalarProperty Name="ColorCode" ColumnName="ColorCode" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TradeOffers">
+            <EntityTypeMapping TypeName="TradingSiteModel.TradeOffers">
+              <MappingFragment StoreEntitySet="TradeOffers">
+                <ScalarProperty Name="TradeID" ColumnName="TradeID" />
+                <ScalarProperty Name="SteamID" ColumnName="SteamID" />
+                <ScalarProperty Name="BotsAccounts" ColumnName="BotsAccounts" />
+                <ScalarProperty Name="TheirItems" ColumnName="TheirItems" />
+                <ScalarProperty Name="OurItems" ColumnName="OurItems" />
+                <ScalarProperty Name="TradeOffersStatus" ColumnName="TradeOffersStatus" />
+                <ScalarProperty Name="TimeCreated" ColumnName="TimeCreated" />
+                <ScalarProperty Name="TimeDone" ColumnName="TimeDone" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TradeOfferStatus">
+            <EntityTypeMapping TypeName="TradingSiteModel.TradeOfferStatus">
+              <MappingFragment StoreEntitySet="TradeOfferStatus">
+                <ScalarProperty Name="TradeOffersStatus" ColumnName="TradeOffersStatus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Type">
+            <EntityTypeMapping TypeName="TradingSiteModel.Type">
+              <MappingFragment StoreEntitySet="Type">
+                <ScalarProperty Name="TypeName" ColumnName="TypeName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inventory">
+            <EntityTypeMapping TypeName="TradingSiteModel.Inventory">
+              <MappingFragment StoreEntitySet="Inventory">
+                <ScalarProperty Name="BotSteamID" ColumnName="BotSteamID" />
+                <ScalarProperty Name="GameID" ColumnName="GameID" />
+                <ScalarProperty Name="ContextID" ColumnName="ContextID" />
+                <ScalarProperty Name="AssetID" ColumnName="AssetID" />
+                <ScalarProperty Name="ClassID" ColumnName="ClassID" />
+                <ScalarProperty Name="MarketHashName" ColumnName="MarketHashName" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="IconURL" ColumnName="IconURL" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Condition" ColumnName="Condition" />
+                <ScalarProperty Name="StatTrak" ColumnName="StatTrak" />
+                <ScalarProperty Name="Rarity" ColumnName="Rarity" />
+                <ScalarProperty Name="Reserved" ColumnName="Reserved" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TemporaryUser">
+            <EntityTypeMapping TypeName="TradingSiteModel.TemporaryUser">
+              <MappingFragment StoreEntitySet="TemporaryUser">
+                <ScalarProperty Name="SteamID" ColumnName="SteamID" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

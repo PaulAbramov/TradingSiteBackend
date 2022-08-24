@@ -1,0 +1,35 @@
+﻿using System.Net;
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Web.Http;
+using TradingSite.Models;
+
+namespace TradingSite.Controllers
+{
+    public class StatisticsController : ApiController
+    {
+        /// <summary>
+        /// Get statistics from the database and return it to the website
+        /// </summary>
+        /// <returns></returns>
+        public HttpResponseMessage Get()
+        {
+            Statistics newStatistics = new Statistics
+            {
+                ActiveUsers = 10,
+                NewUsersToday = 100,
+                SuccessfulTrades = 123123123,
+                UsersTotal = 1123123,
+                InventoryValue = 123012.23
+            };
+
+            var response = new HttpResponseMessage
+            {
+                Content = new ObjectContent(typeof(Statistics), newStatistics, new JsonMediaTypeFormatter()),
+                StatusCode = HttpStatusCode.Accepted
+            };
+
+            return response;
+        }
+    }
+}
